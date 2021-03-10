@@ -1,8 +1,6 @@
 class RouteNames {
   static const String home = '/';
   static const String menu = '/menu/menu/';
-  static const String reports = '/relatorios';
-  static const String settings = '/configuracoes';
 }
 
 class RouteListTile {
