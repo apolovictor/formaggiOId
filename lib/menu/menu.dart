@@ -481,7 +481,7 @@ class BillPageState extends State<BillPage> {
                                                   padding: EdgeInsets.fromLTRB(
                                                       20, 50, 20, 20),
                                                   child: Text(
-                                                      "Aguarde que um garçom irá entregar seu pedido. Muito obrigado!",
+                                                      "Deseja finalizar a sua conta?",
                                                       style: TextStyle(
                                                           fontSize: 22,
                                                           color:
@@ -507,126 +507,112 @@ class BillPageState extends State<BillPage> {
                                                         MainAxisAlignment
                                                             .spaceEvenly,
                                                     children: [
-                                                      Positioned(
-                                                        bottom: 10,
-                                                        right: 0,
-                                                        child: TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context,
-                                                                  false);
-                                                            },
-                                                            child: Text(
-                                                              'Não',
-                                                              style: TextStyle(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            )),
-                                                      ),
-                                                      Positioned(
-                                                        bottom: 10,
-                                                        right: 20,
-                                                        child: TextButton(
-                                                            onPressed: () {
-                                                              rxPrefs
-                                                                  .getStringStream(
-                                                                      'idDoc')
-                                                                  .listen(
-                                                                      (event) {
-                                                                if (event !=
-                                                                    null) {
-                                                                  print(event);
-                                                                  FirebaseFirestore
-                                                                      .instance
-                                                                      .collection(
-                                                                          'orders')
-                                                                      .doc(
-                                                                          event)
-                                                                      .update(<
-                                                                          String,
-                                                                          dynamic>{
-                                                                    'status': 4
-                                                                  });
-                                                                  FirebaseFirestore
-                                                                      .instance
-                                                                      .collection(
-                                                                          'orders')
-                                                                      .doc(
-                                                                          event)
-                                                                      .collection(
-                                                                          'detailsOrder')
-                                                                      .where(
-                                                                          'idDocument',
-                                                                          isEqualTo:
-                                                                              event)
-                                                                      .get()
-                                                                      .then(
-                                                                          (res) {
-                                                                    res.docs.forEach(
-                                                                        (result) {
-                                                                      FirebaseFirestore
-                                                                          .instance
-                                                                          .collection(
-                                                                              'orders')
-                                                                          .doc(
-                                                                              event)
-                                                                          .collection(
-                                                                              'detailsOrder')
-                                                                          .doc(result
-                                                                              .id)
-                                                                          .update(<
-                                                                              String,
-                                                                              dynamic>{
-                                                                        'status':
-                                                                            4,
-                                                                      });
-                                                                    });
-
+                                                      TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context, false);
+                                                          },
+                                                          child: Text(
+                                                            'Não',
+                                                            style: TextStyle(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .secondary,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          )),
+                                                      TextButton(
+                                                          onPressed: () {
+                                                            rxPrefs
+                                                                .getStringStream(
+                                                                    'idDoc')
+                                                                .listen(
+                                                                    (event) {
+                                                              if (event !=
+                                                                  null) {
+                                                                print(event);
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'orders')
+                                                                    .doc(event)
+                                                                    .update(<
+                                                                        String,
+                                                                        dynamic>{
+                                                                  'status': 4
+                                                                });
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'orders')
+                                                                    .doc(event)
+                                                                    .collection(
+                                                                        'detailsOrder')
+                                                                    .where(
+                                                                        'idDocument',
+                                                                        isEqualTo:
+                                                                            event)
+                                                                    .get()
+                                                                    .then(
+                                                                        (res) {
+                                                                  res.docs.forEach(
+                                                                      (result) {
                                                                     FirebaseFirestore
                                                                         .instance
                                                                         .collection(
-                                                                            'tables')
-                                                                        .doc(idTable
-                                                                            .toString())
+                                                                            'orders')
+                                                                        .doc(
+                                                                            event)
+                                                                        .collection(
+                                                                            'detailsOrder')
+                                                                        .doc(result
+                                                                            .id)
                                                                         .update(<
                                                                             String,
                                                                             dynamic>{
                                                                       'status':
-                                                                          5,
+                                                                          4,
                                                                     });
-
-                                                                    Controller()
-                                                                        .invalidate();
-                                                                    rxPrefs
-                                                                        .dispose();
-                                                                    rxPrefs.remove(
-                                                                        'idDoc');
                                                                   });
-                                                                }
-                                                              });
 
-                                                              Navigator
-                                                                  .pushNamed(
-                                                                      context,
-                                                                      '/');
-                                                            },
-                                                            child: Text(
-                                                              'Sim',
-                                                              style: TextStyle(
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .secondary,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            )),
-                                                      ),
+                                                                  FirebaseFirestore
+                                                                      .instance
+                                                                      .collection(
+                                                                          'tables')
+                                                                      .doc(idTable
+                                                                          .toString())
+                                                                      .update(<
+                                                                          String,
+                                                                          dynamic>{
+                                                                    'status': 5,
+                                                                  });
+
+                                                                  Controller()
+                                                                      .invalidate();
+                                                                  rxPrefs
+                                                                      .dispose();
+                                                                  rxPrefs.remove(
+                                                                      'idDoc');
+                                                                });
+                                                              }
+                                                            });
+
+                                                            Navigator.pushNamed(
+                                                                context, '/');
+                                                          },
+                                                          child: Text(
+                                                            'Sim',
+                                                            style: TextStyle(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .colorScheme
+                                                                    .secondary,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          )),
                                                     ],
                                                   ),
                                                 ),
