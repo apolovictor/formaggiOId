@@ -11,6 +11,7 @@ import 'package:formaggi/menu/product_card.dart';
 import 'package:formaggi/models/Data.dart' as model;
 import "package:collection/collection.dart";
 import 'package:rx_shared_preferences/rx_shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class Menu extends StatefulWidget {
   Menu({Key key}) : super(key: key);
@@ -26,6 +27,7 @@ class _MenuState extends State<Menu> {
   final Duration delay = Duration(milliseconds: 500);
   GlobalKey rectGetterKey = RectGetter.createGlobalKey(); //<--Create a key
   Rect rect;
+  final rxPrefs = RxSharedPreferences.getInstance();
 
   void _onTap() {
     setState(() => rect = RectGetter.getRectFromKey(
@@ -70,21 +72,135 @@ class _MenuState extends State<Menu> {
                 ),
               ),
               actions: <Widget>[
-                // IconButton(
-                //     icon: SvgPicture.asset(
-                //       iconBartender,
-                //       color: Colors.white,
-                //     ),
-                //     onPressed: () {} //do something,
-                //     ),
                 Builder(
                   builder: (context) => IconButton(
-                    icon: Icon(
-                      Icons.help,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => {},
-                  ),
+                      icon: Icon(
+                        Icons.help,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => {
+                            showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                backgroundColor: Colors.transparent,
+                                insetPadding: EdgeInsets.all(10),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  alignment: Alignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      width: double.infinity,
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: Color(0xFFFA9501)),
+                                      padding:
+                                          EdgeInsets.fromLTRB(20, 50, 20, 20),
+                                      child: Text(
+                                          "Gostaria de chamar o garçom?",
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              color: Colors.white),
+                                          textAlign: TextAlign.center),
+                                    ),
+                                    Positioned(
+                                        top: -110,
+                                        child: Image.asset(
+                                          'images/bartender.png',
+                                          width: 190,
+                                          height: 190,
+                                          color: Colors.black,
+                                        )),
+                                    Positioned(
+                                      bottom: 10,
+                                      right: 0,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              child: Text(
+                                                'Não',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )),
+                                          TextButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  DateFormat dateFormat =
+                                                      DateFormat(
+                                                          "yyyy-MM-dd HH:mm:ss");
+                                                  String dateFormated =
+                                                      dateFormat.format(
+                                                          DateTime.now());
+                                                  rxPrefs
+                                                      .getStringStream('idDoc')
+                                                      .listen(
+                                                    (event) async {
+                                                      if (event != null) {
+                                                        final QuerySnapshot
+                                                            docRef =
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'orders')
+                                                                .where(
+                                                                    'idDocument',
+                                                                    isEqualTo:
+                                                                        event)
+                                                                .get();
+                                                        final item =
+                                                            BartenderReq(
+                                                          id: true,
+                                                          idTable: docRef
+                                                                  .docs.single[
+                                                              'idTable'],
+                                                          username: docRef
+                                                                  .docs.single[
+                                                              'username'],
+                                                          idDocument: event,
+                                                          orderTimeStart:
+                                                              dateFormated
+                                                                  .toString(),
+                                                          status: 1,
+                                                        ).toMap();
+
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'orders')
+                                                            .doc(event)
+                                                            .collection(
+                                                                'requestBartender')
+                                                            .doc()
+                                                            .set(item);
+                                                      }
+                                                    },
+                                                  );
+                                                });
+                                                Navigator.pop(context, false);
+                                              },
+                                              child: Text(
+                                                'Sim',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          }),
                 )
               ],
             ),
@@ -145,6 +261,11 @@ class _MenuState extends State<Menu> {
   }
 }
 
+class Global {
+  static final shared = Global();
+  bool isSwitched = true;
+}
+
 class FadeRouteBuilder<T> extends PageRouteBuilder<T> {
   final Widget page;
 
@@ -167,7 +288,12 @@ class BillPageState extends State<BillPage> {
     final html.Storage _localStorage = html.window.localStorage;
 
     final rxPrefs = RxSharedPreferences.getInstance();
-    rxPrefs.getStringStream('idDoc').listen((event) async {});
+
+    onSwitchValueChanged(bool value) {
+      setState(() {
+        Global.shared.isSwitched = value;
+      });
+    }
 
     // print(_localStorage['docId']);
     var value = _localStorage['jsonMap'];
@@ -191,16 +317,114 @@ class BillPageState extends State<BillPage> {
                 Icons.help,
                 color: Colors.white,
               ),
-              onPressed: () => {},
+              onPressed: () => {
+                showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: EdgeInsets.all(10),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        Container(
+                          width: double.infinity,
+                          height: 200,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.white),
+                          padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                          child: Text("Gostaria de chamar o garçom?",
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
+                              textAlign: TextAlign.center),
+                        ),
+                        Positioned(
+                            top: -110,
+                            child: Image.asset(
+                              'images/bartender.png',
+                              width: 190,
+                              height: 190,
+                              color: Colors.black,
+                            )),
+                        Positioned(
+                          bottom: 10,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, false);
+                                  },
+                                  child: Text(
+                                    'Não',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                              TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      DateFormat dateFormat =
+                                          DateFormat("yyyy-MM-dd HH:mm:ss");
+                                      String dateFormated =
+                                          dateFormat.format(DateTime.now());
+                                      rxPrefs.getStringStream('idDoc').listen(
+                                        (event) async {
+                                          if (event != null) {
+                                            final QuerySnapshot docRef =
+                                                await FirebaseFirestore.instance
+                                                    .collection('orders')
+                                                    .where('idDocument',
+                                                        isEqualTo: event)
+                                                    .get();
+                                            final item = BartenderReq(
+                                              id: true,
+                                              idTable:
+                                                  docRef.docs.single['idTable'],
+                                              username: docRef
+                                                  .docs.single['username'],
+                                              idDocument: event,
+                                              orderTimeStart:
+                                                  dateFormated.toString(),
+                                              status: 1,
+                                            ).toMap();
+
+                                            FirebaseFirestore.instance
+                                                .collection('orders')
+                                                .doc(event)
+                                                .collection('requestBartender')
+                                                .doc()
+                                                .set(item);
+                                          }
+                                        },
+                                      );
+                                    });
+                                    Navigator.pop(context, false);
+                                  },
+                                  child: Text(
+                                    'Sim',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              },
             ),
-          )
-          // IconButton(
-          //     icon: SvgPicture.asset(
-          //       iconBartender,
-          //       color: Colors.white,
-          //     ),
-          //     onPressed: () {} //do something,
-          //     ),
+          ),
         ],
       ),
       body: Container(
@@ -275,7 +499,6 @@ class BillPageState extends State<BillPage> {
                             sumTotal = sumTotal + json2[data]['total'];
                             itemTotal = itemTotal + json2[data]['sum'];
                             // print(json2[data]['list']);
-                            print(data);
                             // print(json2[data]['sum']);
                             // print(sumTotal);
                             // print(itemTotal);
@@ -290,16 +513,6 @@ class BillPageState extends State<BillPage> {
                                       ? Wrap(children: [
                                           for (var data in json2.keys)
                                             Center(
-                                                // color: Colors.white,
-                                                // // elevation: 5,
-                                                // shape: RoundedRectangleBorder(
-                                                //   borderRadius:
-                                                //       BorderRadius.circular(
-                                                //           10.0),
-                                                // ),
-                                                // margin: EdgeInsets.symmetric(
-                                                //     horizontal: 10,
-                                                //     vertical: 10),
                                                 child: Container(
                                                     padding: EdgeInsets.all(10),
                                                     child: Row(
@@ -426,11 +639,35 @@ class BillPageState extends State<BillPage> {
                                                             ])
                                                       ],
                                                     ))),
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: [
+                                                Text('Pagar os 10%?',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Switch(
+                                                  value:
+                                                      Global.shared.isSwitched,
+                                                  onChanged: (value) {
+                                                    onSwitchValueChanged(value);
+                                                  },
+                                                  activeTrackColor:
+                                                      Colors.white,
+                                                  activeColor: Colors.red[800],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           Center(
                                             child: Container(
                                               margin: EdgeInsets.only(top: 25),
                                               child: Text(
-                                                'Total R\$ $sumTotal'
+                                                'Total R\$ ${Global.shared.isSwitched == true ? sumTotal = (sumTotal * 110) / 100 : sumTotal}'
                                                     .toString(),
                                                 style: TextStyle(
                                                     fontSize: 18,
@@ -532,7 +769,6 @@ class BillPageState extends State<BillPage> {
                                                                     (event) {
                                                               if (event !=
                                                                   null) {
-                                                                print(event);
                                                                 FirebaseFirestore
                                                                     .instance
                                                                     .collection(
@@ -541,7 +777,14 @@ class BillPageState extends State<BillPage> {
                                                                     .update(<
                                                                         String,
                                                                         dynamic>{
-                                                                  'status': 4
+                                                                  'itens':
+                                                                      itemTotal,
+                                                                  'total':
+                                                                      sumTotal,
+                                                                  'status': 4,
+                                                                  'dateTimeFinish':
+                                                                      DateTime.now()
+                                                                          .toString(),
                                                                 });
                                                                 FirebaseFirestore
                                                                     .instance

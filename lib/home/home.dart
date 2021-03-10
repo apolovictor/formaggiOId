@@ -219,25 +219,3 @@ createOrder(table, username, idOrder) async {
   Controller().save(docId.toString());
   Controller().save2(jsonMap);
 }
-
-// class IdRepository {
-//   final html.Storage _localStorage = html.window.localStorage;
-
-//   Future save(String jsonMap) async {
-//     _localStorage['jsonMap'] = jsonMap;
-//   }
-
-//   // Future save2(String docId, String status) async {
-//   //   _localStorage['docId'] = docId;
-//   //   _localStorage['status'] = status;
-//   // }
-//   Future<String> getJsonMap() async => _localStorage['jsonMap'];
-//   // Future<String> getDocId() async => _localStorage['docId'];
-//   // Future<String> getStatus() async => _localStorage['status'];
-
-//   Future invalidate() async {
-//     _localStorage.remove('jsonMap');
-//     // _localStorage.remove('docId');
-//     // _localStorage.remove('status');
-//   }
-// }

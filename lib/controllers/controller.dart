@@ -31,3 +31,4 @@ class Controller {
     _localStorage.remove('jsonMap');
   }
 }
+

@@ -213,3 +213,80 @@ class OrdersOpened {
       orderTimeFinish.hashCode ^
       status.hashCode;
 }
+
+class BartenderReq {
+  final bool id;
+  final int idTable;
+  final String username;
+  final String idDocument;
+  final String orderTimeStart;
+  final String orderTimeFinish;
+  final int status;
+
+  final String documentId;
+  BartenderReq({
+    this.id,
+    this.idTable,
+    this.username,
+    this.idDocument,
+    this.orderTimeStart,
+    this.orderTimeFinish,
+    this.status,
+    this.documentId,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'idTable': idTable,
+      'username': username,
+      'idDocument': idDocument,
+      'orderTimeStart': orderTimeStart,
+      'orderTimeFinish': orderTimeFinish,
+      'status': status,
+    };
+  }
+
+  static BartenderReq fromDoc(DocumentSnapshot doc) {
+    if (doc == null) return null;
+
+    return BartenderReq(
+      id: doc.data()['id'],
+      idTable: doc.data()['idTable'],
+      username: doc.data()['username'],
+      idDocument: doc.data()['idDocument'],
+      orderTimeStart: doc.data()['orderTimeStart'],
+      orderTimeFinish: doc.data()['orderTimeFinish'],
+      status: doc.data()['status'],
+      documentId: doc.id,
+    );
+  }
+
+  @override
+  String toString() =>
+      'BartenderReq(id: $id, id: $idTable,  idDocument: $idDocument, username: $username,  orderTimeStart: $orderTimeStart, orderTimeFinish: $orderTimeFinish,  status: $status)';
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+
+    return o is BartenderReq &&
+        o.id == id &&
+        o.idTable == idTable &&
+        o.username == username &&
+        o.idDocument == idDocument &&
+        o.orderTimeStart == orderTimeStart &&
+        o.orderTimeFinish == orderTimeFinish &&
+        o.status == status;
+  }
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      idTable.hashCode ^
+      username.hashCode ^
+      idDocument.hashCode ^
+      orderTimeStart.hashCode ^
+      orderTimeFinish.hashCode ^
+      status.hashCode;
+}
